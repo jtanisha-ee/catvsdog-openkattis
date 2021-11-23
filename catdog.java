@@ -1,27 +1,21 @@
 import java.util.Scanner;
 import java.io.*;
+import java.util.ArrayList;
 
 public class catdog {
 
     private int bpgraph [][]; // adjacency matrix
+    
     public catdog(int v) { // v = voters. we draw an edge if 2 voters are incompatible
         bpgraph = new int[v][v];
+        bpgraph[0][0] = 1; //initliaze source and sink to 1
+        bpgraph[v][v] = 1;
     }
 
-    public void addEdge(int to, int from ) {
-        
-        this.bpgraph[to][from] = 1;
+    public void addEdge(int from, int to ) {
         this.bpgraph[from][to] = 1; 
     }
-
-    //initialize source and sink to 1
-    public int [][] createBPgraph(int [][] g) {
-        g[0][0] = 1;
-        g[g.length][g.length] = 1;
-        return g;
-    } 
-    
-
+   
     private static class Voter {
         int index;
         int keep;
@@ -36,7 +30,7 @@ public class catdog {
         
     }
     
-    //TODO: implement ford fulkerson to find max flow
+    static int seenNode = 1;
     public int fordfulkerson(int [][] g, int source, int sink) {
         int numNodes = g.length;
         int [] seen = new int[numNodes];
@@ -51,7 +45,7 @@ public class catdog {
         }
     }
     public static int dfs(int[][] g, int[] seen, int source, int sink, int flow) {
-      // Found sink node, return flow thus far
+      
       if (source == sink) return flow;
   
       int[] weight = g[source];
@@ -60,48 +54,40 @@ public class catdog {
       for (int i = 0; i < weight.length; i++) {
         if (seen[i] != seenNode && weight[i] > 0) {
   
-          if (weight[i] < flow) flow = bpg[i];
-          int dfsFlow = dfs(g, seen, i, sink, flow);
+          if (weight[i] < flow) flow = weight[i];
+          int dfs_flow = dfs(g, seen, i, sink, flow);
   
-          if (dfsFlow > 0) {
-            g[source][i] -= dfsFlow;
-            g[i][source] += dfsFlow;
-            return dfsFlow;
+          if (dfs_flow > 0) {
+            g[source][i] -= dfs_flow;
+            g[i][source] += dfs_flow;
+            return dfs_flow;
           }
         }
       }
   
       return 0;
-    } //node = voter
+    } 
 
 
-    //TODO: implement maximal matching here
-    public int maxmatching() {
-        int maxvoters = 0;
-
-        return maxvoters;
-
-    }
 
     public static void main(String [] args ) {
         Scanner input = new Scanner(System.in);
-        int nCases = input.getInt();
-		for (int ctr = 0; ctr < nTests; ctr++) {
-			int nCats = input.getInt();
-			int nDogs = input.getInt();
-			int numVoters = input.getInt();
+        int nCases = input.nextInt();
+		for (int ctr = 0; ctr < nCases; ctr++) {
+			int nCats = input.nextInt();
+			int nDogs = input.nextInt();
+			int numVoters = input.nextInt();
             catdog graph = new catdog(numVoters+2);
-            int sourceNodeCapacity = 1;
-            int sinkNodeCapacity = 1;
+            
             
 		    ArrayList<Voter> voters = new ArrayList<>(numVoters); //numvertices
 
             for (int i = 1; i <=numVoters; i++) {
                 String keep_str = input.next();
                 String remove_str = input.next();
-                String pet = s1.substring(0,1);
-                int keep = Integer.parseInt(s1.substring(1));
-				int remove = Integer.parseInt(s2.substring(1));
+                String pet = keep_str.substring(0,1);
+                int keep = Integer.parseInt(keep_str.substring(1));
+				int remove = Integer.parseInt(remove_str.substring(1));
                 boolean catLover = pet.equals("C");
                 
                 if (catLover) {
@@ -113,7 +99,7 @@ public class catdog {
             //draw edge when 2 voters are incompatible
             for (Voter v1 : voters) {
                 for (Voter v2 : voters) {
-                    if (v1.keep == v2.leave && v1 != v2) {
+                    if (v1.keep == v2.remove && v1 != v2) {
                         graph.addEdge(v1.index, v2.index);
                     } else if (v2.keep == v1.remove && v1 != v2) {
                         graph.addEdge(v2.index, v1.index);
@@ -125,13 +111,14 @@ public class catdog {
                 if (v.keep > 0) {
                     graph.addEdge(0,v.index);
                 } else {
-                    graph.addEdge(v.index,g.length);
+                    graph.addEdge(v.index, numVoters+2);
                 }
             } 
             //end draw graph
-            createBPgraph(graph);
+            
             
         }
+        input.close();
     
 
     }    
