@@ -5,6 +5,10 @@ import java.util.ArrayList;
 public class catdog {
 
     private int bpgraph [][]; // adjacency matrix
+    int catlovers, doglovers;
+    int [][] g;
+    int [] matching;
+    boolean [] used;
     
     public catdog(int v) { // v = voters. we draw an edge if 2 voters are incompatible
         bpgraph = new int[v][v];
@@ -68,18 +72,23 @@ public class catdog {
       return 0;
     } 
 
-
+    private static boolean[][] graph;
+	private static int[] matches;
+	private static int dim;
 
     public static void main(String [] args ) {
         Scanner input = new Scanner(System.in);
         int nCases = input.nextInt();
+        System.out.println("nCases " + nCases);
 		for (int ctr = 0; ctr < nCases; ctr++) {
 			int nCats = input.nextInt();
 			int nDogs = input.nextInt();
 			int numVoters = input.nextInt();
+            System.out.println("ncats " + nCats + "nDogs" +nDogs);
             catdog graph = new catdog(numVoters+2);
             
-            
+            dim = numVoters;
+            matches = new boolean[dim][dim];
 		    ArrayList<Voter> voters = new ArrayList<>(numVoters); //numvertices
 
             for (int i = 1; i <=numVoters; i++) {
@@ -114,12 +123,57 @@ public class catdog {
                     graph.addEdge(v.index, numVoters+2);
                 }
             } 
-            //end draw graph
             
+            for (Voter v : voters) {
+				for (Voter v1 : voters) {
+					if (v.keep == v1.leave && v != p1) {
+						map[v.index][v1.index] = true;
+						map[v1.index][v.index] = true;
+					} else if (v1.keep == v.leave && p1 != p2) {
+						map[v.index][v1.index] = true;
+						map[v1.index][v.index] = true;
+					}
+				}
+			} 
+
+			matches = new int[dim];
+			for (int i = 0; i < dim; i++)
+				matches[i] = -1;
+
+			boolean[] seen;
+			int count = 0;
+			for (int i = 0; i <dim; i++) {
+				seen = new boolean[dim];
+				if (voters.get(i).keep < 0)  //i = voter index
+					if (maxMatch(i, seen))
+						count++;
+			}
             
         }
         input.close();
-    
-
     }    
+    private static boolean maxMatch(int p, boolean[] seen) {
+		for (int adj = 0; adj < N; adj++) {
+			if (map[p][adj] && adj != p) {
+				if (matching[adj] < 0) {
+					matching[adj] = p;
+					return true;
+				}
+			}
+		}
+		for (int adj = 0; adj < dim; adj++) {
+			if (graph[p][adj] && !seen[adj] && adj != p) {
+				seen[adj] = true;
+				if (match(matches[adj], seen)) {
+					matches[adj] = p;
+					return true;
+				}
+			}
+		}
+
+		return false;
+
+	}
 }
+
+
