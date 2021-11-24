@@ -1,13 +1,13 @@
 import java.util.Scanner;
 import java.util.ArrayList;
 
-public class oldcatdog {
+public class CatDogFinal {
        // on a Bipartite graph, the value of max flow = size of maximum matching set of edges
 
     private int bpgraph [][]; // adjacency matrix
     
     
-    public oldcatdog(int v) { // v = voters. we draw an edge if 2 voters are incompatible
+    public CatDogFinal(int v) { // v = voters. we draw an edge if 2 voters are incompatible
         bpgraph = new int[v][v];
     }
 
@@ -30,7 +30,7 @@ public class oldcatdog {
     }
     
     static int seenNode = 1;
-    public int fordfulkerson(oldcatdog a, int source, int sink) {
+    public int fordfulkerson(CatDogFinal a, int source, int sink) {
         int [][] g = a.bpgraph;
         int numNodes = g.length;
         System.out.println("reached here");
@@ -84,11 +84,12 @@ public class oldcatdog {
 			String[] values = line2.split(" ");
             
             int numVoters = Integer.parseInt(values[2]);
-            oldcatdog graph = new oldcatdog(numVoters+2);
+            CatDogFinal graph = new CatDogFinal(numVoters+2);
             
             
 		    ArrayList<Voter> voters = new ArrayList<>(numVoters); //numvertices before bpgraph
-            
+            int catlovers = 0;
+            int doglovers = 0;
             for (int i = 0; i <numVoters; i++) {
                 String kr = input.nextLine();
                 String[] vals = kr.split(" ");
@@ -100,19 +101,19 @@ public class oldcatdog {
                 
                 if (catLover) {
                     voters.add(new Voter(i, -keep, remove)); //positive = cat, neg = dog
-                    
+                    catlovers++;
                 } else {
                     voters.add(new Voter(i, keep, -remove));
-                    
+                    doglovers++;
                 }  
             }
             //draw edge when 2 voters are incompatible
             for (Voter v1 : voters) {
                 for (Voter v2 : voters) {
                     if (v1.keep == v2.remove && v1 != v2) {
-                        graph.addEdge(v1.index+1, v2.index+1);
+                        graph.addEdge(v1.index, v2.index);
                     } else if (v2.keep == v1.remove && v1 != v2) {
-                        graph.addEdge(v2.index+1, v1.index+1);
+                        graph.addEdge(v2.index, v1.index);
                     }
                 }
             } 
@@ -120,16 +121,17 @@ public class oldcatdog {
             //effectively convert graph into a bipartite graph, for max flow computation
             for (Voter v : voters) {
                 if (v.keep > 0) {
-                    graph.addEdge(0,v.index+1);
+                    graph.addEdge(0,v.index);
                 } else {
-                    graph.addEdge(v.index+1, numVoters+1);
+                    graph.addEdge(v.index, numVoters);
                 }
             } 
             //end draw graph
             //int [][] g, int source, int sink
-            int s = 0;
+            int s = numVoters;
             int t = numVoters+1;
             int maximal_match = graph.fordfulkerson(graph, s, t);
+            System.out.println("mm = " +  maximal_match);
             maxmatches[ctr] = maximal_match;
                 
         }
